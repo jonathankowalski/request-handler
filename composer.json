@@ -1,5 +1,5 @@
 {
-    "name": "jk/request-handler",
+    "name": "openjk/request-handler",
     "description": "A simple implements of psr-15 RequestHandlerInterface",
     "type": "library",
     "license": "MIT",

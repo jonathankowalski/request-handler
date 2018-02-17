@@ -5,7 +5,7 @@ Provide a simple implements of PSR-15 RequestHandlerInterface
 ## Installation
 
 ```
-composer require jk/request-handler
+composer require openjk/request-handler
 ```
 
 ## Usage
