@@ -1,0 +1,26 @@
+{
+    "name": "jk/request-handler",
+    "description": "A simple implements of psr-15 RequestHandlerInterface",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jonathan Kowalski",
+            "email": "jonathan.kowalski@laposte.net"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "JK\\": "src/",
+            "JK\\RequestHandler\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "psr/http-message": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "php": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0"
+    }
+}
