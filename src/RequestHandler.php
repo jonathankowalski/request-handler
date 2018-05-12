@@ -1,6 +1,6 @@
 <?php
 
-namespace JK;
+namespace Openjk;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -13,12 +13,8 @@ class RequestHandler implements RequestHandlerInterface
     /**
      * @var MiddlewareInterface[]
      */
-    protected $middlewares = [];
-    /**
-     * @var MiddlewareInterface[]
-     */
-    private $reverseMiddlewares = [];
-    private $once = false;
+    private $middlewares = [];
+    private $indexMiddleware = 0;
 
     /**
      * @var ResponseInterface
@@ -32,7 +28,7 @@ class RequestHandler implements RequestHandlerInterface
 
     public function pipe(MiddlewareInterface $middleWare): RequestHandler
     {
-        $this->middlewares [] = $middleWare;
+        $this->middlewares[] = $middleWare;
         return $this;
     }
 
@@ -42,22 +38,17 @@ class RequestHandler implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        if (!$this->once) {
-            $this->reverseMiddlewares = array_reverse($this->middlewares);
-            $this->once = true;
+        $middleware = $this->getNextMiddlewareFunction(array_reverse($this->middlewares))($this->indexMiddleware++);
+        if ($middleware instanceof MiddlewareInterface) {
+            return $middleware->process($request, $this);
         }
-        $middleware = $this->getNextMiddleWare();
-        if (!$middleware) {
-            return $this->response;
-        }
-        return $middleware->process($request, $this);
+        return $this->response;
     }
 
-    /**
-     * @return null|MiddlewareInterface
-     */
-    protected function getNextMiddleWare()
+    private function getNextMiddlewareFunction(array $middlewares = []): \Closure
     {
-        return array_pop($this->reverseMiddlewares);
+        return function ($index) use ($middlewares) {
+          return $middlewares[$index] ?? null;
+        };
     }
 }

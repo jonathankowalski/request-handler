@@ -11,8 +11,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "JK\\": "src/",
-            "JK\\RequestHandler\\Tests\\": "tests/"
+            "Openjk\\": "src/",
+            "Openjk\\RequestHandler\\Tests\\": "tests/"
         }
     },
     "require": {

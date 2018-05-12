@@ -1,8 +1,8 @@
 <?php
 
-namespace JK\RequestHandler\Tests;
+namespace Openjk\RequestHandler\Tests;
 
-use JK\RequestHandler;
+use Openjk\RequestHandler;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -26,6 +26,16 @@ class RequestHandlerTest extends TestCase
     protected $middleware;
 
     /**
+     * @var MiddlewareInterface
+     */
+    protected $middlewareWithFirstException;
+
+    /**
+     * @var MiddlewareInterface
+     */
+    protected $middlewareWithSecondException;
+
+    /**
      * @throws \ReflectionException
      */
     public function setUp()
@@ -33,6 +43,14 @@ class RequestHandlerTest extends TestCase
         $this->response = $this->createMock(ResponseInterface::class);
         $this->request = $this->createMock(ServerRequestInterface::class);
         $this->middleware = $this->createMock(MiddlewareInterface::class);
+        $this->middlewareWithFirstException = $this->createMock(MiddlewareInterface::class);
+        $this->middlewareWithFirstException
+            ->method('process')
+            ->willThrowException(new \Exception('', 1));
+        $this->middlewareWithSecondException = $this->createMock(MiddlewareInterface::class);
+        $this->middlewareWithSecondException
+            ->method('process')
+            ->willThrowException(new \Exception('', 2));
     }
 
     public function testNoMiddlewares()
@@ -46,5 +64,19 @@ class RequestHandlerTest extends TestCase
         $handler = new RequestHandler($this->response);
         $this->assertInstanceOf(RequestHandler::class, $handler->pipe($this->middleware));
         $this->assertInstanceOf(ResponseInterface::class, $handler->handle($this->request));
+    }
+
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionCode 2
+     */
+    public function testOrderMiddleWare()
+    {
+        $handler = new RequestHandler($this->response);
+        $handler
+            ->pipe($this->middlewareWithFirstException)
+            ->pipe($this->middlewareWithSecondException)
+        ;
+        $handler->handle($this->request);
     }
 }
