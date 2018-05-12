@@ -14,7 +14,7 @@ composer require openjk/request-handler
 
 ```php
 
-$requestHandler = new RequestHandler($ResponseInterface);
+$requestHandler = new RequestHandler($DefaultResponseInterface);
 $requestHandler->pipe($MiddlewareInteface);
 $ResponseInterface = $requestHandler->handle($ServerRequestInterface)
 
