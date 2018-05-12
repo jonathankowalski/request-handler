@@ -19,11 +19,11 @@ class RequestHandler implements RequestHandlerInterface
     /**
      * @var ResponseInterface
      */
-    protected $response;
+    protected $defaultResponse;
 
-    public function __construct(ResponseInterface $response)
+    public function __construct(ResponseInterface $defaultResponse)
     {
-        $this->response = $response;
+        $this->defaultResponse = $defaultResponse;
     }
 
     public function pipe(MiddlewareInterface $middleWare): RequestHandler
@@ -42,7 +42,7 @@ class RequestHandler implements RequestHandlerInterface
         if ($middleware instanceof MiddlewareInterface) {
             return $middleware->process($request, $this);
         }
-        return $this->response;
+        return $this->defaultResponse;
     }
 
     private function getNextMiddlewareFunction(array $middlewares = []): \Closure
