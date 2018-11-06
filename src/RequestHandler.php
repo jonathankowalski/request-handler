@@ -15,6 +15,9 @@ class RequestHandler implements RequestHandlerInterface
      */
     private $middlewares = [];
     private $indexMiddleware = 0;
+    private $nextMiddlewareFn;
+    private $shouldInit = true;
+    private $init = 0;
 
     /**
      * @var ResponseInterface
@@ -38,17 +41,43 @@ class RequestHandler implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $middleware = $this->getNextMiddlewareFunction(array_reverse($this->middlewares))($this->indexMiddleware++);
+        $this->shouldInit = $this->initHandle($this->shouldInit);
+        $middleware = $this->getNextMiddleware($this->nextMiddlewareFn, $this->indexMiddleware++);
         if ($middleware instanceof MiddlewareInterface) {
             return $middleware->process($request, $this);
         }
         return $this->defaultResponse;
     }
 
-    private function getNextMiddlewareFunction(array $middlewares = []): \Closure
+    /**
+     * @return boolean
+     */
+    private function initHandle($test)
     {
-        return function ($index) use ($middlewares) {
-          return $middlewares[$index] ?? null;
-        };
+        return $test
+            && $this->init(
+                $this->middlewares,
+                function ($middlewares) {
+                    return function ($index) use ($middlewares) {
+                        return $middlewares[$index] ?? null;
+                    };
+                }
+            );
+    }
+
+    /**
+     * @return boolean
+     */
+    private function init(array $middlewares, Callable $getNextMiddlewareFn)
+    {
+        $this->nextMiddlewareFn = $getNextMiddlewareFn(
+            array_reverse($middlewares)
+        );
+        return false;
+    }
+
+    private function getNextMiddleware(Callable $getNextMiddlewareFn, $index) : ?MiddlewareInterface
+    {
+        return $getNextMiddlewareFn($index);
     }
 }
